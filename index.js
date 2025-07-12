@@ -16,3 +16,14 @@ const taskData = z.object({
     deadline: z.string().datetime(),
 });
 
+// Create a new task
+app.post('/tasks', async (req, res) => {
+    try {
+        const data = taskData.parse(req.body);
+        const task = await prisma.task.create({data});
+        res.json(task);
+    } catch (err) {
+        res.status(400).json({error: 'Invalid input.'});
+    }
+});
+
