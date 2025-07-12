@@ -27,3 +27,60 @@ app.post('/tasks', async (req, res) => {
     }
 });
 
+// Retrieve all tasks with filtering options
+app.get('/tasks', async (req, res) => {
+    const {category, priority, deadlineFrom, deadlineTo, sortBy='createdAt', sortOrder='asc'} = req.query;
+
+    // Filtering
+    const where = {
+        ...(category && {category}),
+        ...(priority && {priority}),
+        ...(deadlineFrom || deadlineTo) && {
+            deadline: {
+                ...(deadlineFrom && {gte: new Date(deadlineFrom)}),
+                ...(deadlineTo && {lte: new Date(deadlineTo)}),
+            },
+        },
+    };
+
+    // Find by filter
+    const tasks = await prisma.task.findMany({
+        where, orderBy: {
+            [sortBy]: sortOrder,
+        },
+    });
+
+    res.json(tasks);
+});
+
+// Retrieve details of a specific task
+app.get('/tasks/:id', async (req, res) => {
+    const task = await prisma.task.findUnique({where: {id: Number(req.params.id)}});
+    if (!task) return res.status(404).json({error: 'Task does not exist.'});
+    res.json(task);
+});
+
+// Update details of an existing task
+app.put('/tasks/:id', async (req, res) => {
+    try {
+        const data = taskData.parse(req.body);
+        const task = await prisma.task.update({where: {id: Number(req.params.id)}, data});
+        res.json(task);
+    } catch (err) {
+        if (err.code === 'P2025') {
+            res.status(404).json({error: 'Task does not exist.'});
+        } else {
+            res.status(400).json({error: 'Invalid input.'});
+        }
+    }
+});
+
+// Delete a task
+app.delete('/tasks/:id', async (req, res) => {
+    try {
+        await prisma.task.delete({where: {id: Number(req.params.id)}});
+        res.status(204).send();
+    } catch (err) {
+        res.status(404).json({error: 'Task does not exist.'});
+    }
+});
