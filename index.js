@@ -1,7 +1,7 @@
 const app = require('express')();
 const PORT = 8080;
-const { PrismaClient } = require('./generated/prisma');
-const { z } = require('zod');
+const {PrismaClient} = require('./generated/prisma');
+const {z} = require('zod');
 const prisma = new PrismaClient();
 
 app.use(require('express').json());
