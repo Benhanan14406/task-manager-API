@@ -12,7 +12,7 @@ const taskData = z.object({
     title: z.string().min(1),
     description: z.string().optional(),
     category: z.string().optional(),
-    priority: z.enum(['Low', 'Medium', 'High']),
+    priority: z.string().toLowerCase().includes('low' || 'medium' || 'high'),
     deadline: z.string().datetime(),
 });
 
