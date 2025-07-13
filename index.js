@@ -22,7 +22,7 @@ app.post('/tasks', async (req, res) => {
         const data = taskData.parse(req.body);
         const task = await prisma.task.create({data});
         res.json(task);
-    } catch (err) {
+    } catch {
         res.status(400).json({error: 'Invalid input.'});
     }
 });
@@ -52,7 +52,7 @@ app.get('/tasks', async (req, res) => {
     });
 
     res.json(tasks);
-    } catch (err) {
+    } catch {
         return res.status(404).json({error: 'Task does not exist.'});
     }
 });
@@ -62,7 +62,7 @@ app.get('/tasks/:id', async (req, res) => {
     try {
         const task = await prisma.task.findUnique({where: {id: Number(req.params.id)}});
         res.json(task);
-    } catch (err) {
+    } catch {
         return res.status(404).json({error: 'Task does not exist.'});
     }
 });
@@ -87,7 +87,7 @@ app.delete('/tasks/:id', async (req, res) => {
     try {
         await prisma.task.delete({where: {id: Number(req.params.id)}});
         res.status(204).send();
-    } catch (err) {
+    } catch {
         res.status(404).json({error: 'Task does not exist.'});
     }
 });
