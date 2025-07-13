@@ -29,7 +29,7 @@ app.post('/tasks', async (req, res) => {
 
 // Retrieve all tasks with filtering options
 app.get('/tasks', async (req, res) => {
-    const {category, priority, deadlineFrom, deadlineTo, sortBy='createdAt', sortOrder='asc'} = req.query;
+    const {category, priority, deadlineFrom, deadlineTo, sortBy = 'createdAt', sortOrder = 'asc'} = req.query;
 
     // Filtering
     const where = {
@@ -43,6 +43,7 @@ app.get('/tasks', async (req, res) => {
         },
     };
 
+    try {
     // Find by filter
     const tasks = await prisma.task.findMany({
         where, orderBy: {
@@ -51,13 +52,19 @@ app.get('/tasks', async (req, res) => {
     });
 
     res.json(tasks);
+    } catch (err) {
+        return res.status(404).json({error: 'Task does not exist.'});
+    }
 });
 
 // Retrieve details of a specific task
 app.get('/tasks/:id', async (req, res) => {
-    const task = await prisma.task.findUnique({where: {id: Number(req.params.id)}});
-    if (!task) return res.status(404).json({error: 'Task does not exist.'});
-    res.json(task);
+    try {
+        const task = await prisma.task.findUnique({where: {id: Number(req.params.id)}});
+        res.json(task);
+    } catch (err) {
+        return res.status(404).json({error: 'Task does not exist.'});
+    }
 });
 
 // Update details of an existing task
